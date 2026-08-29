@@ -132,10 +132,6 @@ STATIC void shake256(u8 *out, size_t outlen, const u8 *in, size_t inlen) {
     memset(&S, 0, sizeof(S));
 }
 
-/* ================================================================
- * NTT (embedded, FIPS-203 compatible)
- * ================================================================ */
-
 STATIC const u16 zetas[HALF_N] = {
     1,1729,2580,3289,2642,630,1897,848,1062,1919,193,797,2786,3260,569,1746,
     296,2447,1339,1476,3046,56,2240,1333,1426,2094,535,2882,2393,2879,1974,821,
@@ -182,7 +178,7 @@ STATIC void ntt_inv(u16 f[N]) {
                 f[j+len] = mul_mod(z, sub_mod(u, t));
             }
         }
-    for (u16 j = 0; j < N; j++) f[j] = mul_mod(f[j], 169); /* n^-1 mod q */
+    for (u16 j = 0; j < N; j++) f[j] = mul_mod(f[j], 169);
 }
 
 STATIC void poly_mul_ntt(u16 out[N], const u16 a[N], const u16 b[N]) {
@@ -194,17 +190,9 @@ STATIC void poly_mul_ntt(u16 out[N], const u16 a[N], const u16 b[N]) {
     }
 }
 
-/* ================================================================
- * Context Definition
- * ================================================================ */
-
 struct coset_tag_ctx {
-    int16_t d[COEFFS]; /* Secret coset offset */
+    int16_t d[COEFFS]; 
 };
-
-/* ================================================================
- * Platform Entropy
- * ================================================================ */
 
 STATIC int default_entropy(void *buf, size_t len) {
 #ifdef __linux__
@@ -218,16 +206,12 @@ STATIC int default_entropy(void *buf, size_t len) {
 #endif
 }
 
-/* ================================================================
- * Public API Implementation
- * ================================================================ */
-
 coset_tag_ctx *coset_tag_create(int (*entropy_fn)(void *, size_t)) {
     coset_tag_ctx *ctx = calloc(1, sizeof(coset_tag_ctx));
     if (!ctx) return NULL;
     if (!entropy_fn) entropy_fn = default_entropy;
 
-    /* Generate bounded d ∈ [-B_D, B_D] via SHAKE expansion */
+    
     u8 seed[32];
     if (entropy_fn(seed, 32) != 0) { free(ctx); return NULL; }
     u8 expanded[COEFFS * 2];
@@ -249,7 +233,6 @@ void coset_tag_destroy(coset_tag_ctx *ctx) {
     free(ctx);
 }
 
-/* Domain-separated ternary hash: SHAKE256(msg || domain) -> {-1,0,1}^COEFFS */
 STATIC void hash_to_ternary(const u8 *msg, size_t msg_len, int16_t *out) {
     size_t dlen = strlen(COSET_TAG_DOMAIN);
     size_t total = msg_len + dlen;
@@ -267,7 +250,6 @@ STATIC void hash_to_ternary(const u8 *msg, size_t msg_len, int16_t *out) {
     memset(raw, 0, sizeof(raw));
 }
 
-/* Compute z[k] = u[k] + d[k] * alpha[k] per polynomial component */
 STATIC void compute_z(int16_t *z, const int16_t *u_signed, const int16_t *d, const int16_t *alpha) {
     for (int k = 0; k < K; k++) {
         u16 d_ntt[N], a_ntt[N], prod_ntt[N];
@@ -323,19 +305,15 @@ int coset_tag_generate(const coset_tag_ctx *ctx,
     if (!ctx || !u_bytes || !msg || !z_out) return -1;
     if (u_len != COSET_TAG_BYTES || z_out_len != COSET_TAG_BYTES) return -1;
 
-    /* Unpack u from serialized bytes */
     int16_t u_signed[COEFFS];
     coset_tag_unpack(u_bytes, u_len, u_signed, COEFFS);
 
-    /* Compute ternary hash of message */
     int16_t alpha[COEFFS];
     hash_to_ternary(msg, msg_len, alpha);
 
-    /* z = u + d * alpha */
     int16_t z[COEFFS];
     compute_z(z, u_signed, ctx->d, alpha);
 
-    /* Serialize z */
     coset_tag_pack(z, COEFFS, z_out);
 
     memset(u_signed, 0, sizeof(u_signed));
@@ -351,22 +329,18 @@ int coset_tag_verify(const coset_tag_ctx *ctx,
     if (!ctx || !true_u || !msg || !z_bytes) return -1;
     if (u_coeffs != COEFFS || z_len != COSET_TAG_BYTES) return -1;
 
-    /* Convert true_u to signed */
     int16_t u_signed[COEFFS];
     for (size_t i = 0; i < COEFFS; i++)
         u_signed[i] = (true_u[i] > Q/2) ? (int16_t)(true_u[i] - Q) : (int16_t)true_u[i];
 
-    /* Recompute expected tag */
     int16_t alpha[COEFFS];
     hash_to_ternary(msg, msg_len, alpha);
     int16_t z_expected[COEFFS];
     compute_z(z_expected, u_signed, ctx->d, alpha);
 
-    /* Unpack received tag */
     int16_t z_received[COEFFS];
     coset_tag_unpack(z_bytes, z_len, z_received, COEFFS);
 
-    /* Constant-time comparison */
     volatile u32 diff = 0;
     for (size_t i = 0; i < COEFFS; i++) {
         int16_t d = z_expected[i] - z_received[i];
@@ -386,4 +360,3 @@ int coset_tag_get_d(const coset_tag_ctx *ctx, int16_t *d_out, size_t d_coeffs) {
     memcpy(d_out, ctx->d, COEFFS * sizeof(int16_t));
     return 0;
 }
-
