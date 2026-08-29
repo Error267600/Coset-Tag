@@ -1,6 +1,6 @@
-/* SPDX-License-Identifier: MIT OR GPL-2.0
- * Copyright (c) 2026 — Coset Authentication Tag
- * Lattice-based private-verifiable message authentication for KEMs */
+/* MIT License
+ * Copyright (c) 2026 — Coset Tag
+ * Lattice-based private-verifiable message authentication for any point to point */
 
 #ifndef COSET_TAG_H
 #define COSET_TAG_H
