@@ -1,6 +1,15 @@
-/* MIT License
- * Copyright (c) 2026 — Coset Tag
- * Self-contained: embeds Keccak, SHAKE256, NTT.*/
+// Copyright (c) 2026 — Coset Tag
+// Self-contained: embeds Keccak, SHAKE256, NTT
+// SPDX-License-Identifier: MIT OR GPL-2.0
+//
+// Copyright (c) 2026 K.S.Zavertailo — Original ML-KEM implementation
+// Source: https://github.com/kstzv/ml-kem
+// Licensed under MIT OR GPL-2.0
+//
+// This file embeds ML-KEM primitives (Keccak-f[1600], SHAKE256, NTT,
+// key generation, encapsulation, decapsulation) from the above project.
+
+
 
 
 
