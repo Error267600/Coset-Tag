@@ -2,7 +2,7 @@
 // Self-contained: embeds Keccak, SHAKE256, NTT
 // SPDX-License-Identifier: MIT OR GPL-2.0
 //
-// Copyright (c) 2026 K.S.Zavertailo — Original ML-KEM implementation
+// Copyright (c) 2026 kstzv — Original ML-KEM implementation
 // Source: https://github.com/kstzv/ml-kem
 // Licensed under MIT OR GPL-2.0
 //
