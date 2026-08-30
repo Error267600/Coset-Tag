@@ -1,5 +1,5 @@
 # Coset-Tag
-Post quantum asymmetric authentication tag used for point to point.
+Key exchange algorithm made with Module LWE as a experiment.
 ## Attribution
 
 This project embeds ML-KEM primitives from [kstzv/ml-kem](https://github.com/kstzv/ml-kem):
