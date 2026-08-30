@@ -1,4 +1,4 @@
-// Copyright (c) 2026 — Coset Tag
+// Copyright (c) 2026 Hello
 // Self-contained: embeds Keccak, SHAKE256, NTT
 // SPDX-License-Identifier: MIT OR GPL-2.0
 //
