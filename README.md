@@ -4,7 +4,7 @@ Post quantum asymmetric authentication tag used for point to point.
 
 This project embeds ML-KEM primitives from [kstzv/ml-kem](https://github.com/kstzv/ml-kem):
 
-> Copyright (c) 2026 K.S.Zavertailo
+> Copyright (c) 2026 kstzv
 > Licensed under MIT OR GPL-2.0
 > https://github.com/kstzv/ml-kem
 
